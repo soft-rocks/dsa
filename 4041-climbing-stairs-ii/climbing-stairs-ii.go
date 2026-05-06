@@ -1,14 +1,10 @@
 func climbStairs(n int, costs []int) int {
-	a, b, c := 0, 0, 0
-	for _, cost := range costs {
-		a, b, c = b, c, cost+min(a+9, min(b+4, c+1))
-	}
-	return c
-}
-
-func min(x, y int) int {
-	if x < y {
-		return x
-	}
-	return y
+    a,b,c:= 0,0,0
+    for _, cost := range costs {
+        next := cost + min(a + 9, b + 4, c + 1)
+        a = b
+        b = c
+        c = next
+    }
+    return c
 }
