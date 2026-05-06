@@ -1,29 +1,39 @@
 func rotateTheBox(boxGrid [][]byte) [][]byte {
-	m, n := len(boxGrid), len(boxGrid[0])
+    m := len(boxGrid)
+    n := len(boxGrid[0])
 
-	// gravity to the right
-	for i := 0; i < m; i++ {
-		write := n - 1
-		for j := n - 1; j >= 0; j-- {
-			if boxGrid[i][j] == '*' {
-				write = j - 1
-			} else if boxGrid[i][j] == '#' {
-				boxGrid[i][j] = '.'
-				boxGrid[i][write] = '#'
-				write--
-			}
-		}
-	}
+    //mMinOne := m - 1
+    nMinOne := n - 1
 
-	//rotate 90 degree to the right
-	res := make([][]byte, n)
-	for i := range res {
-		res[i] = make([]byte, m)
-	}
-	for i := 0; i < m; i++ {
-		for j := 0; j < n; j++ {
-			res[j][m-1-i] = boxGrid[i][j]
-		}
-	}
-	return res
+    newGrid := make([][]byte, n)
+    for row:= 0; row < n; row++ {
+        newGrid[row] = make([]byte, len(boxGrid))
+    }
+
+    oldRow := m
+    for col :=0; col < m; col++ {
+        oldRow--
+
+        row := nMinOne
+        for oldCol := nMinOne; oldCol >=0; oldCol-- {
+            switch boxGrid[oldRow][oldCol] {
+                case '#':
+                    newGrid[row][col] = '#'
+                    row--
+                case '*':
+                    for row > oldCol{
+                        newGrid[row][col] = '.'
+                        row--
+                    }
+                    newGrid[row][col] = '*'
+                    row--
+            }
+        }
+
+        for ;row >=0; row-- {
+            newGrid[row][col] = '.'
+        }
+    }
+
+    return newGrid
 }
