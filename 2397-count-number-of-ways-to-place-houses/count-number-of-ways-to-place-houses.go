@@ -1,14 +1,26 @@
 const mod = 1000000007
 
-func fib(n int) int {
-	a, b := 0, 1
-    for i := 0; i < n; i++ {
-        a, b = b, (a+b)%mod
-    }
-    return a % mod
+func countHousePlacements(n int) int {
+    side := fib(n)
+    return side * side % mod
 }
 
-func countHousePlacements(n int) int {
-	onSide := fib(n + 2)
-	return (onSide * onSide) % mod
+func fib(n int) int {
+    if n == 0 {
+        return 1
+    }
+    if n == 1 {
+        return 2
+    }
+
+    a := 1
+    b := 2
+    result := b
+    for i:= 2; i<= n; i++ {
+        result = (a + b) % mod
+        a = b
+        b = result
+    }
+
+    return result % mod
 }
