@@ -1,22 +1,31 @@
 func rob(nums []int, colors []int) int64 {
-    if len(nums) == 1 { return int64(nums[0]) }
-    var a, b, c int // ~ dp[i-2], dp[i-1], dp[i]
-    
-    // init first two maximums to rob:
-    a = nums[0] // rob house 0
-    if colors[0] == colors[1] {  // if colors are the same:
-        b = max(a, nums[1])      // rob either house 0 or house 1
-    } else {
-        b = a + nums[1]          // if colors are different, rob both houses
-    }
-    if len(nums) == 2 { return int64(b) } // no more houses to rob
-    for i := 2; i < len(nums); i++ {  // iterate from 2 index (third house; previous max's are initialised: a, b)
-        if colors[i-1] != colors[i] { // if colors are different
-            c = max(a + nums[i], b + nums[i]) // colors are different; we need to rob house 100%, maximizing previous robs: a, b
+    var res int64
+    var lastEvenMoney, lastOddMoney, evenMoney, oddMoney int64
+    curColor := 0
+    isEven := true
+    for i, color := range colors {
+        money := nums[i]
+        if color != curColor {
+            res += max(evenMoney, oddMoney)
+            curColor = color
+            evenMoney = int64(money)
+            oddMoney, lastEvenMoney, lastOddMoney = 0,0,0
+            isEven = true
         } else {
-            c = max(b, a + nums[i]) // if colors are the same: either do not rob it, or rob (adding previous previous state)
+            isEven = !isEven
+            if isEven {
+                lastEvenMoney, evenMoney = evenMoney, max(evenMoney + int64(money), lastOddMoney + int64(money))
+            } else {
+                lastOddMoney, oddMoney = oddMoney, max(oddMoney + int64(money), lastEvenMoney + int64(money))
+            }
         }
-        a, b = b, c // fixup previous states
     }
-    return int64(c)
+    res += max(evenMoney, oddMoney)
+    return res
+}
+func max(a, b int64) int64 {
+    if a > b {
+        return a
+    }
+    return b
 }
