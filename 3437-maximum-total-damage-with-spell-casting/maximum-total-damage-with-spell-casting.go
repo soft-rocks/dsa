@@ -1,52 +1,31 @@
-type Spell struct {
-    totalDamage int64
-    power       int
-}
-
-func maximumTotalDamage(p []int) int64 {
-    sort.Ints(p)
-    dp := make([]Spell, 5)
-    cnt := 0
-    
-    for i := 0; i < len(p); i++ {
-        cnt++
-        // Merge spells with same power
-        if i != len(p)-1 && p[i] == p[i+1] {
-            continue
-        }
-        
-        // Calculate damage if we select current spell
-        curr := int64(p[i]) * int64(cnt)
-        cnt = 0
-        
-        // Find optimal position in window
-        candidate := 5
-        for j := 4; j >= 0; j-- {
-            if p[i]-dp[j].power <= 2 {
-                continue
-            }
-            if j == 4 || candidate == 5 {
-                candidate = j
-            } else if dp[j+1].power-dp[j].power > 2 && p[i]-dp[j+1].power > 2 {
-                break
-            } else {
-                if dp[j].totalDamage > dp[candidate].totalDamage {
-                    candidate = j
-                }
-            }
-        }
-        
-        var damage int64
-        if candidate != 5 {
-            damage = dp[candidate].totalDamage
-        }
-        
-        // Update sliding window
-        dp = append(dp[1:], Spell{
-            totalDamage: damage + curr,
-            power:       p[i],
-        })
+func maximumTotalDamage(power []int) int64 {
+    freq := map[int]int{}
+    for _, p := range power {
+        freq[p]++
     }
-    
-    return max(dp[2].totalDamage, dp[3].totalDamage, dp[4].totalDamage)
+
+    nums := []int{}
+    for k, _ := range freq {
+        nums = append(nums, k)
+    }
+
+    sort.Ints(nums)
+
+    n := len(nums)
+    dp := make([]int, n)
+    dp[0] = nums[0] * freq[nums[0]]
+
+    for i := 1; i < n; i++ {
+        num := nums[i]
+        dp[i] = max(dp[i-1], num * freq[num])
+        
+        for j := i-1; j >= 0 && j >= i-3; j-- {
+            num2 := nums[j]
+            if num - num2 > 2 {
+                dp[i] = max(dp[i], num * freq[num] + dp[j])
+            }
+        }
+    }
+
+    return int64(dp[n-1])
 }
