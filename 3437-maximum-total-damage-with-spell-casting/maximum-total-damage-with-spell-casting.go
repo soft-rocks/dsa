@@ -1,25 +1,52 @@
-func maximumTotalDamage(spells []int) int64 {
-    sort.Ints(spells)
-    prevVal := [3]int{math.MinInt32, math.MinInt32, math.MinInt32}
-    prevDp := [3]int64{0, 0, 0}
-    var maxDamage int64 = 0
-    i := 0
-    for i < len(spells) {
-        j := i+1
-        var currAcc int64 = int64(spells[i])
-        for j < len(spells) && spells[j] == spells[i] {
-            currAcc += int64(spells[j])
-            j++
+type Spell struct {
+    totalDamage int64
+    power       int
+}
+
+func maximumTotalDamage(p []int) int64 {
+    sort.Ints(p)
+    dp := make([]Spell, 5)
+    cnt := 0
+    
+    for i := 0; i < len(p); i++ {
+        cnt++
+        // Merge spells with same power
+        if i != len(p)-1 && p[i] == p[i+1] {
+            continue
         }
-        for k := 2; k >= 0; k-- {
-            if spells[i]-2 > prevVal[k] {
-                maxDamage = max(maxDamage, currAcc+prevDp[k]);
+        
+        // Calculate damage if we select current spell
+        curr := int64(p[i]) * int64(cnt)
+        cnt = 0
+        
+        // Find optimal position in window
+        candidate := 5
+        for j := 4; j >= 0; j-- {
+            if p[i]-dp[j].power <= 2 {
+                continue
+            }
+            if j == 4 || candidate == 5 {
+                candidate = j
+            } else if dp[j+1].power-dp[j].power > 2 && p[i]-dp[j+1].power > 2 {
                 break
+            } else {
+                if dp[j].totalDamage > dp[candidate].totalDamage {
+                    candidate = j
+                }
             }
         }
-        prevVal[0], prevVal[1], prevVal[2] = prevVal[1], prevVal[2], spells[i]
-        prevDp[0], prevDp[1], prevDp[2] = prevDp[1], prevDp[2], maxDamage
-        i = j;
+        
+        var damage int64
+        if candidate != 5 {
+            damage = dp[candidate].totalDamage
+        }
+        
+        // Update sliding window
+        dp = append(dp[1:], Spell{
+            totalDamage: damage + curr,
+            power:       p[i],
+        })
     }
-    return maxDamage
+    
+    return max(dp[2].totalDamage, dp[3].totalDamage, dp[4].totalDamage)
 }
